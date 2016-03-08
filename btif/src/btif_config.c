@@ -109,6 +109,8 @@ static future_t *init(void) {
       unlink(LEGACY_CONFIG_FILE_PATH);
   }
 
+  btif_config_devcache_cleanup();
+
   // TODO(sharvil): use a non-wake alarm for this once we have
   // API support for it. There's no need to wake the system to
   // write back to disk.
@@ -394,41 +396,43 @@ static void timer_config_save(UNUSED_ATTR UINT16 event, UNUSED_ATTR char* p_para
   assert(config != NULL);
   assert(alarm_timer != NULL);
 
-  // Garbage collection process: the config file accumulates
-  // cached information about remote devices during regular
-  // inquiry scans. We remove some of these junk entries
-  // so the file doesn't grow indefinitely. We have to take care
-  // to make sure we don't remove information about bonded
-  // devices (hence the check for link keys).
-  static const size_t CACHE_MAX = 256;
-  const char *keys[CACHE_MAX];
-  size_t num_keys = 0;
-  size_t total_candidates = 0;
+  btif_config_devcache_cleanup();
 
   pthread_mutex_lock(&lock);
-  for (const config_section_node_t *snode = config_section_begin(config); snode != config_section_end(config); snode = config_section_next(snode)) {
-    const char *section = config_section_name(snode);
-    if (!string_is_bdaddr(section))
-      continue;
-
-    if (config_has_key(config, section, "LinkKey") ||
-        config_has_key(config, section, "LE_KEY_PENC") ||
-        config_has_key(config, section, "LE_KEY_PID") ||
-        config_has_key(config, section, "LE_KEY_PCSRK") ||
-        config_has_key(config, section, "LE_KEY_LENC") ||
-        config_has_key(config, section, "LE_KEY_LCSRK"))
-      continue;
-
-    if (num_keys < CACHE_MAX)
-      keys[num_keys++] = section;
-
-    ++total_candidates;
-  }
-
-  if (total_candidates > CACHE_MAX * 2)
-    while (num_keys > 0)
-      config_remove_section(config, keys[--num_keys]);
-
   config_save(config, CONFIG_FILE_PATH);
+  pthread_mutex_unlock(&lock);
+}
+
+static void btif_config_devcache_cleanup(void) {
+  assert(config != NULL);
+
+  // The config accumulates cached information about remote
+  // devices during regular inquiry scans. We remove some of these
+  // so the cache doesn't grow indefinitely.
+  // We don't remove information about bonded devices (which have link keys).
+  static const size_t ADDRS_MAX = 512;
+  size_t total_addrs = 0;
+
+  pthread_mutex_lock(&lock);
+  const config_section_node_t *snode = config_section_begin(config);
+  while (snode != config_section_end(config)) {
+    const char *section = config_section_name(snode);
+    if (string_is_bdaddr(section)) {
+      ++total_addrs;
+
+      if ((total_addrs > ADDRS_MAX) &&
+          !config_has_key(config, section, "LinkKey") &&
+          !config_has_key(config, section, "LE_KEY_PENC") &&
+          !config_has_key(config, section, "LE_KEY_PID") &&
+          !config_has_key(config, section, "LE_KEY_PCSRK") &&
+          !config_has_key(config, section, "LE_KEY_LENC") &&
+          !config_has_key(config, section, "LE_KEY_LCSRK")) {
+        snode = config_section_next(snode);
+        config_remove_section(config, section);
+        continue;
+      }
+    }
+    snode = config_section_next(snode);
+  }
   pthread_mutex_unlock(&lock);
 }

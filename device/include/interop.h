@@ -34,6 +34,11 @@ typedef enum {
   // timeouts are received during pairing.
   INTEROP_AUTO_RETRY_PAIRING,
 
+  // Devices requiring this workaround do not handle Bluetooth Absolute Volume
+  // control correctly, leading to undesirable (potentially harmful) volume levels
+  // or general lack of controlability.
+  INTEROP_DISABLE_ABSOLUTE_VOLUME,
+
   // Some HID devices have proven problematic behaviour if SDP is initiated more
   // while HID connection is in progress or if more than 1 SDP connection is created
   // with those HID devices rsulting in issues of connection failure with such devices.

@@ -41,6 +41,7 @@
 #include "btif_util.h"
 #include "btif_av.h"
 #include "hardware/bt_rc.h"
+#include "device/include/interop.h"
 #include "uinput.h"
 #include "bdaddr.h"
 
@@ -483,6 +484,9 @@ void handle_rc_features(int index)
             btif_rc_cb[index].rc_features &= ~BTA_AV_FEAT_ADV_CTRL;
         }
 
+        if (interop_addr_match(INTEROP_DISABLE_ABSOLUTE_VOLUME, &rc_addr))
+            btif_rc_cb[index].rc_features &= ~BTA_AV_FEAT_ADV_CTRL;
+
         if (btif_rc_cb[index].rc_features & BTA_AV_FEAT_BROWSE)
         {
             rc_features |= BTRC_FEAT_BROWSE;
@@ -492,6 +496,13 @@ void handle_rc_features(int index)
         {
            rc_features |= BTRC_FEAT_ABSOLUTE_VOLUME;
         }
+#if (AVRC_ADV_CTRL_INCLUDED == TRUE)
+        if ( (btif_rc_cb[index].rc_features & BTA_AV_FEAT_ADV_CTRL) &&
+             (btif_rc_cb[index].rc_features & BTA_AV_FEAT_RCTG))
+        {
+            rc_features |= BTRC_FEAT_ABSOLUTE_VOLUME;
+        }
+#endif
         if (btif_rc_cb[index].rc_features & BTA_AV_FEAT_METADATA)
         {
             rc_features |= BTRC_FEAT_METADATA;

@@ -31,6 +31,7 @@
 #include "btif_config.h"
 #include "btif_config_transcode.h"
 #include "btif_util.h"
+#include "btif_common.h"
 #include "osi/include/compat.h"
 #include "osi/include/config.h"
 #include "btcore/include/module.h"
@@ -359,10 +360,10 @@ void btif_config_flush(void) {
   assert(alarm_timer != NULL);
 
   alarm_cancel(alarm_timer);
-  btif_config_write(0, NULL);
 
+  btif_config_write(0, NULL);
   pthread_mutex_lock(&lock);
-  config_save(config, CONFIG_FILE_PATH);
+  config_flush(CONFIG_FILE_PATH);
   pthread_mutex_unlock(&lock);
 }
 

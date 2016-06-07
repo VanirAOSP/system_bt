@@ -361,9 +361,6 @@ void btif_config_flush(void) {
 
   alarm_cancel(alarm_timer);
   btif_config_write(0, NULL);
-  pthread_mutex_lock(&lock);
-  config_flush(CONFIG_FILE_PATH);
-  pthread_mutex_unlock(&lock);
 }
 
 int btif_config_clear(void){

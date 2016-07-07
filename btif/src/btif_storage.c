@@ -1733,6 +1733,24 @@ BOOLEAN btif_storage_is_fixed_pin_zeros_keyboard(bt_bdaddr_t *remote_bd_addr)
 
 }
 
+/*******************************************************************************
+**
+** Function         btif_storage_is_restricted_device
+**
+** Description      BTIF storage API - checks if this device is a restricted device
+**
+** Returns          TRUE  if the device is labeled as restricted
+**                  FALSE otherwise
+**
+*******************************************************************************/
+BOOLEAN btif_storage_is_restricted_device(const bt_bdaddr_t *remote_bd_addr)
+{
+    bdstr_t bdstr;
+    bdaddr_to_string(remote_bd_addr, bdstr, sizeof(bdstr));
+
+    return btif_config_exist(bdstr, "Restricted");
+}
+
 static const char *wii_names[4] = {
     "Nintendo RVL-CNT-01",		/* 1st gen */
     "Nintendo RVL-CNT-01-TR",	/* 2nd gen */
@@ -1833,26 +1851,9 @@ bt_status_t btif_storage_remove_hidd(bt_bdaddr_t *remote_bd_addr)
 {
     bdstr_t bdstr;
     bdaddr_to_string(remote_bd_addr, bdstr, sizeof(bdstr));
+
     btif_config_remove(bdstr, "HidDeviceCabled");
     btif_config_save();
 
     return BT_STATUS_SUCCESS;
-}
-
-/*******************************************************************************
-**
-** Function         btif_storage_is_restricted_device
-**
-** Description      BTIF storage API - checks if this device is a restricted device
-**
-** Returns          TRUE  if the device is labeled as restricted
-**                  FALSE otherwise
-**
-*******************************************************************************/
-BOOLEAN btif_storage_is_restricted_device(const bt_bdaddr_t *remote_bd_addr)
-{
-    bdstr_t bdstr;
-    bdaddr_to_string(remote_bd_addr, bdstr, sizeof(bdstr));
-
-    return btif_config_exist(bdstr, "Restricted");
 }

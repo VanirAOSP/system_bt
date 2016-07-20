@@ -2628,15 +2628,22 @@ BOOLEAN l2cu_set_acl_priority (BD_ADDR bd_addr, UINT8 priority, BOOLEAN reset_af
             UINT8_TO_STREAM  (pp, vs_param);
 
             BTM_VendorSpecificCommand (HCI_BRCM_SET_ACL_PRIORITY, HCI_BRCM_ACL_PRIORITY_PARAM_SIZE, command, NULL);
+
+            /* Adjust lmp buffer allocation for this channel if priority changed */
+            if (p_lcb->acl_priority != priority)
+            {
+                p_lcb->acl_priority = priority;
+                l2c_link_adjust_allocation();
+            }
+        }
+    } else {
+        if (p_lcb->acl_priority != priority)
+        {
+            p_lcb->acl_priority = priority;
+            l2c_link_adjust_allocation();
         }
     }
 
-    /* Adjust lmp buffer allocation for this channel if priority changed */
-    if (p_lcb->acl_priority != priority)
-    {
-        p_lcb->acl_priority = priority;
-        l2c_link_adjust_allocation();
-    }
     return(TRUE);
 }
 

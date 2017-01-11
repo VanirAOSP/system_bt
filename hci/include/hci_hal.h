@@ -28,10 +28,7 @@ typedef enum {
   DATA_TYPE_COMMAND = 1,
   DATA_TYPE_ACL     = 2,
   DATA_TYPE_SCO     = 3,
-  DATA_TYPE_EVENT   = 4,
-#ifdef HCI_USE_RTK_H5
-  DATA_TYPE_H5  =  5
-#endif 
+  DATA_TYPE_EVENT   = 4
 } serial_data_type_t;
 
 typedef void (*data_ready_cb)(serial_data_type_t type);

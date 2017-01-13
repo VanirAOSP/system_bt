@@ -55,6 +55,7 @@
 #include "osi/include/osi.h"
 #include "osi/include/thread.h"
 #include "stack_config.h"
+#include <bt_types.h>
 
 /*******************************************************************************
 **  Constants & Macros

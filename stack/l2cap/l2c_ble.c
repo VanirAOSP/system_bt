@@ -295,16 +295,13 @@ void l2cble_notify_le_connection (BD_ADDR bda)
         l2cu_process_fixed_chnl_resp (p_lcb);
     }
 
-    if (p_lcb == NULL) {
-        L2CAP_TRACE_ERROR("%s, link control block is null", __func__);
-        return;
-    }
-
-    /* For all channels, send the event through their FSMs */
-    for (p_ccb = p_lcb->ccb_queue.p_first_ccb; p_ccb; p_ccb = p_ccb->p_next_ccb)
-    {
-        if (p_ccb->chnl_state == CST_CLOSED)
-            l2c_csm_execute (p_ccb, L2CEVT_LP_CONNECT_CFM, NULL);
+    if (p_lcb != NULL) {
+        /* For all channels, send the event through their FSMs */
+        for (p_ccb = p_lcb->ccb_queue.p_first_ccb; p_ccb; p_ccb = p_ccb->p_next_ccb)
+        {
+            if (p_ccb->chnl_state == CST_CLOSED)
+                l2c_csm_execute (p_ccb, L2CEVT_LP_CONNECT_CFM, NULL);
+        }
     }
 
 

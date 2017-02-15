@@ -578,16 +578,16 @@
 **
 ******************************************************************************/
 
-/* The maximum number of simultaneous links that L2CAP can support. */
-#ifndef MAX_ACL_CONNECTIONS
-#define MAX_L2CAP_LINKS             7
-#else
-#define MAX_L2CAP_LINKS             MAX_ACL_CONNECTIONS
-#endif
-
 /* The maximum number of simultaneous channels that L2CAP can support. */
 #ifndef MAX_L2CAP_CHANNELS
 #define MAX_L2CAP_CHANNELS          16
+#endif
+
+/* The maximum number of simultaneous links that L2CAP can support. */
+#ifndef MAX_L2CAP_CHANNELS
+#define MAX_L2CAP_LINKS             7
+#else
+#define MAX_L2CAP_LINKS             MAX_L2CAP_CHANNELS
 #endif
 
 /* The maximum number of simultaneous applications that can register with L2CAP. */
@@ -767,6 +767,11 @@
 #define BLE_MAX_L2CAP_CLIENTS           15
 #endif
 
+#ifndef BLE_HH_QUALIFICATION_ENABLED
+#define BLE_HH_QUALIFICATION_ENABLED        FALSE
+#endif
+
+
 /******************************************************************************
 **
 ** ATT/GATT Protocol/Profile Settings
@@ -823,7 +828,11 @@
 #endif
 
 #ifndef GATT_MAX_PHY_CHANNEL
+#ifndef MAX_L2CAP_CHANNELS
 #define GATT_MAX_PHY_CHANNEL        7
+#else
+#define GATT_MAX_PHY_CHANNEL        MAX_L2CAP_CHANNELS
+#endif
 #endif
 
 /* Used for conformance testing ONLY */
@@ -1391,7 +1400,11 @@
 #endif
 
 #ifndef HID_HOST_MAX_DEVICES
+#ifndef MAX_L2CAP_CHANNELS
 #define HID_HOST_MAX_DEVICES        7
+#else
+#define HID_HOST_MAX_DEVICES        MAX_L2CAP_CHANNELS
+#endif
 #endif
 
 #ifndef HID_HOST_MTU

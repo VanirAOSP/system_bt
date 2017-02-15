@@ -10,9 +10,7 @@ else
 endif
 
 ifeq ($(TARGET_BUILD_VARIANT),userdebug)
-ifneq ($(BOARD_HAS_QCA_BT_ROME),true)
 bluetooth_CFLAGS += -DQLOGKIT_USERDEBUG
-endif
 endif
 
 ifneq ($(BOARD_BLUETOOTH_BDROID_HCILP_INCLUDED),)

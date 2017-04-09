@@ -97,19 +97,9 @@ typedef enum {
   //Increase AG_CONN TIMEOUT so that AG connection go through
   INTEROP_INCREASE_AG_CONN_TIMEOUT,
 
-  // Some HOGP devices do not respond well when we switch from default LE conn parameters
-  // to preferred conn params immediately post connection. Disable automatic switching to
-  // preferred conn params for such devices and allow them to explicity ask for it.
-  INTEROP_DISABLE_LE_CONN_PREFERRED_PARAMS,
-
   // Few remote devices do not understand AVRCP version greater than 1.3. For these
   // devices, we would like to blacklist them and advertise AVRCP version as 1.3
   INTEROP_ADV_AVRCP_VER_1_3,
-
-  // Disable profile connection for headsets/car-kits
-  // Some car kits going bad state when DUT initiate profile connection in collision scenerio
-  // Hence don't initaite profile level connections and wait for incoming connetcion
-  INTEROP_DISABLE_CONNECTION_AFTER_COLLISION,
 } interop_feature_t;
 
 // Check if a given |addr| matches a known interoperability workaround as identified

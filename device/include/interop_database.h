@@ -125,8 +125,6 @@ static const interop_addr_entry_t interop_addr_database[] = {
 
   // Mazda Atenza
   {{{0x04, 0xf8, 0xc2,      0,0,0}}, 3, INTEROP_DISABLE_ABSOLUTE_VOLUME},
-  // HONDA HFT
-  {{{0xA0, 0x14, 0x3D,      0,0,0}}, 3, INTEROP_DISABLE_CONNECTION_AFTER_COLLISION},
 };
 
 typedef struct {
@@ -158,10 +156,6 @@ static const interop_name_entry_t interop_name_database[] = {
 
   // HID Authentication Blacklist
   {"Targus BT Laser Notebook Mouse", 30, INTEROP_DISABLE_AUTH_FOR_HID_POINTING},
-
-  //Below devices reject connection updated with preferred
-  {"BSMBB09DS", 9, INTEROP_DISABLE_LE_CONN_PREFERRED_PARAMS},
-  {"ELECOM", 6, INTEROP_DISABLE_LE_CONN_PREFERRED_PARAMS},
 
   // HID Moto KZ500 Keyboard - Problematic SDP digitizer descriptor
   {"Motorola Keyboard KZ500", 23, INTEROP_REMOVE_HID_DIG_DESCRIPTOR},

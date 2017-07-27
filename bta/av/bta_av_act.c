@@ -391,9 +391,9 @@ UINT8 bta_av_rc_create(tBTA_AV_CB *p_cb, UINT8 role, UINT8 shdl, UINT8 lidx)
         /* this LIDX is reserved for the AVRCP ACP connection */
         p_cb->rc_acp_handle = p_rcb->handle;
         p_cb->rc_acp_idx = (i + 1);
-        APPL_TRACE_DEBUG("rc_acp_handle:%d idx:%d", p_cb->rc_acp_handle, p_cb->rc_acp_idx);
+        APPL_TRACE_IMP("rc_acp_handle: %d idx: %d", p_cb->rc_acp_handle, p_cb->rc_acp_idx);
     }
-    APPL_TRACE_DEBUG("create %d, role: %d, shdl:%d, rc_handle:%d, lidx:%d, status:0x%x",
+    APPL_TRACE_IMP("bta_av_rc_create %d, role: %d, shdl:%d, rc_handle:%d, lidx:%d, status:0x%x",
         i, role, shdl, p_rcb->handle, lidx, p_rcb->status);
 
     return rc_handle;
@@ -1545,12 +1545,12 @@ void bta_av_disable(tBTA_AV_CB *p_cb, tBTA_AV_DATA *p_data)
     {
         hdr.layer_specific = xx + 1;
         bta_av_api_deregister((tBTA_AV_DATA *)&hdr);
+        alarm_free(p_cb->accept_signalling_timer[xx]);
+        p_cb->accept_signalling_timer[xx] = NULL;
     }
 
     alarm_free(p_cb->link_signalling_timer);
     p_cb->link_signalling_timer = NULL;
-    alarm_free(p_cb->accept_signalling_timer);
-    p_cb->accept_signalling_timer = NULL;
 }
 
 /*******************************************************************************
@@ -1665,7 +1665,7 @@ void bta_av_sig_chg(tBTA_AV_DATA *p_data)
                                 p_cb->p_scb[xx]->peer_addr);
                         /* Possible collision : need to avoid outgoing processing while the timer is running */
                         p_cb->p_scb[xx]->coll_mask = BTA_AV_COLL_INC_TMR;
-                        alarm_set_on_queue(p_cb->accept_signalling_timer,
+                        alarm_set_on_queue(p_cb->accept_signalling_timer[xx],
                                            BTA_AV_ACCEPT_SIGNALLING_TIMEOUT_MS,
                                            bta_av_accept_signalling_timer_cback,
                                            UINT_TO_PTR(xx),
@@ -1804,7 +1804,7 @@ static void bta_av_accept_signalling_timer_cback(void *data)
                     /* We are still doing SDP. Run the timer again. */
                     p_scb->coll_mask |= BTA_AV_COLL_INC_TMR;
 
-                    alarm_set_on_queue(p_cb->accept_signalling_timer,
+                    alarm_set_on_queue(p_cb->accept_signalling_timer[inx],
                                        BTA_AV_ACCEPT_SIGNALLING_TIMEOUT_MS,
                                        bta_av_accept_signalling_timer_cback,
                                        UINT_TO_PTR(inx),
@@ -2316,6 +2316,9 @@ void bta_av_rc_closed(tBTA_AV_DATA *p_data)
         bdcpy(rc_close.peer_addr, p_msg->peer_addr);
     }
     (*p_cb->p_cback)(BTA_AV_RC_CLOSE_EVT, (tBTA_AV *) &rc_close);
+    if (bta_av_cb.rc_acp_handle == BTA_AV_RC_HANDLE_NONE
+                    && bta_av_cb.features & BTA_AV_FEAT_RCTG)
+        bta_av_rc_create(&bta_av_cb, AVCT_ACP, 0, BTA_AV_NUM_LINKS + 1);
 }
 
 /*******************************************************************************

@@ -402,7 +402,6 @@ typedef struct
     alarm_t *media_alarm;
     alarm_t *decode_alarm;
     btif_media_stats_t stats;
-    btif_media_stats_t accumulated_stats;
 //#ifdef BTA_AV_SPLIT_A2DP_ENABLED
     UINT8 max_bitpool;
     UINT8 min_bitpool;
@@ -413,6 +412,7 @@ typedef struct
     BOOLEAN tx_enc_update_initiated;
 //#endif
 
+    btif_media_stats_t accumulated_stats;
 #endif
 } tBTIF_MEDIA_CB;
 
@@ -2142,13 +2142,15 @@ static void btif_media_thread_init(UNUSED_ATTR void *context) {
 
   raise_priority_a2dp(TASK_HIGH_MEDIA);
   media_task_running = MEDIA_TASK_STATE_ON;
-  metrics_log_bluetooth_session_start(CONNECTION_TECHNOLOGY_TYPE_BREDR, 0);
   APPL_TRACE_DEBUG(" btif_media_thread_init complete");
+  metrics_log_bluetooth_session_start(CONNECTION_TECHNOLOGY_TYPE_BREDR, 0);
 }
 
 static void btif_media_thread_cleanup(UNUSED_ATTR void *context) {
   APPL_TRACE_IMP(" btif_media_thread_cleanup");
 
+  APPL_TRACE_IMP(" before close the UIPC channnel, ack the pending cmd");
+  a2dp_cmd_acknowledge(A2DP_CTRL_ACK_SUCCESS);
   /* this calls blocks until uipc is fully closed */
   UIPC_Close(UIPC_CH_ID_ALL);
 
@@ -2161,8 +2163,8 @@ static void btif_media_thread_cleanup(UNUSED_ATTR void *context) {
 
   /* Clear media task flag */
   media_task_running = MEDIA_TASK_STATE_OFF;
-  metrics_log_bluetooth_session_end(DISCONNECT_REASON_UNKNOWN, 0);
   APPL_TRACE_DEBUG(" btif_media_thread_cleanup complete");
+  metrics_log_bluetooth_session_end(DISCONNECT_REASON_UNKNOWN, 0);
 }
 
 /*******************************************************************************
